@@ -52,30 +52,32 @@ public class CompetencyServiceImpl implements CompetencyService{
     }
 
     @Override
-    public List<Competency> saveWeightSettings(Map<Long, Double> weightMap) throws IllegalAccessException {
+    public List<Competency> saveWeightSettings(Map<Long, Double> weightMap, Long evaluationId) throws IllegalAccessException {
+        List<Competency> competencies = competencyRepository.findByEvaluationId(evaluationId);
 
-        Double totalWeight = weightMap.values().stream()
-                .mapToDouble(Double::doubleValue)
+        // Bu evaluationId'ye sahip competency'ler için verilen ağırlıkları topla
+        Double totalWeight = weightMap.entrySet().stream()
+                .filter(entry -> competencies.stream().anyMatch(c -> c.getId().equals(entry.getKey())))
+                .mapToDouble(Map.Entry::getValue)
                 .sum();
 
+        // Toplam ağırlık 100 veya 0 olmalı
         if (totalWeight != 100.0 && totalWeight != 0.0) {
             throw new IllegalAccessException("Total weight must be exactly 100 or 0");
         }
 
-
-        List<Competency> existingCompetencies = competencyRepository.findAll();
-
-
-        existingCompetencies.forEach(c -> {
-            Double newWeight = weightMap.get(c.getId());
+        // Ağırlıkları güncelle
+        for (Competency competency : competencies) {
+            Double newWeight = weightMap.get(competency.getId());
             if (newWeight != null) {
-                c.setWeight(newWeight);
+                competency.setWeight(newWeight);
             } else {
-                c.setWeight(0.0);
+                competency.setWeight(0.0);  // Eğer ağırlık haritada yoksa, varsayılan olarak 0.0 ayarla
             }
-        });
+        }
 
-        return competencyRepository.saveAll(existingCompetencies);
+        return competencyRepository.saveAll(competencies);
+
     }
 
 
