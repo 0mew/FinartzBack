@@ -1,29 +1,31 @@
 package com.finartz.userregistration.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Entity
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "user_title")
-public class UserTitle {
+@AllArgsConstructor
+@Table(name = "mail_template")
+public class MailTemplate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @NotBlank
+    @Column(name = "Tıtle")
     private String title;
 
+    @NotBlank
+    @Column(name = "Description")
+    private String description;
 
+    private boolean  updateAllActiveEvaluations;
 }
